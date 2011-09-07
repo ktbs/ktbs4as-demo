@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" xmlns:TraceUI="TraceUI.*" initialize="initializeHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import com.ithaca.traces.Base;
+			import com.ithaca.traces.Ktbs;
+			import com.ithaca.traces.Model;
+			import com.ithaca.traces.Obsel;
+			import com.ithaca.traces.Resource;
+			import com.ithaca.traces.StoredTrace;
+			import com.ithaca.traces.Trace;
+			import com.ithaca.traces.utils.RDFconverter;
+			
+			import mx.collections.ArrayCollection;
+			import mx.events.FlexEvent;
+			import mx.events.PropertyChangeEvent;
+			import mx.events.PropertyChangeEventKind;
+			import mx.utils.ObjectProxy;
+			
+			/*[Bindable]
+			public var arMedia:Array = [{"title":"dummyMedia","url":"http://localhost/LDT/TracesSignees/HulstPremieres/noVideo.f4v", "length":"3551000", "description":"dummyMedia", "startDate":new Date(2011,0,4,14,33,41) },
+				{"title":"pernille26AvrilMatin","url":"http://localhost/LDT/Pernille/Pernille-26Avril-9h44m20s.mov", "length":"11707000", "description":"pernille 26 avril matin", "startDate":new Date(2011,3,26,9,44,20) },
+				{"title":"s1g11","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g11.synced.f4v", "length":"3551000", "description":"s01g11.synced", "startDate":new Date(2011,0,4,14,33,41) },
+				{"title":"s1g12","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g12.synced.f4v", "length":"3551000", "description":"s01g12.synced", "startDate":new Date(2011,0,4,14,33,41) },
+				{"title":"s1g18","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g18.synced.f4v", "length":"3551000", "description":"s01g18.synced", "startDate":new Date(2011,0,4,14,35,41) },
+				{"title":"s2g10","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g10.f4v", "length":"1699000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,55,44) },
+				{"title":"s2g11","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g11.f4v", "length":"1732000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,54,45) },
+				{"title":"s2g12","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g12.f4v", "length":"1634000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,56,46) },
+				{"title":"s2g14","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g14.f4v", "length":"1796000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,52,10) },
+				{"title":"s2g15","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g15.f4v", "length":"1838000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,52,38) },
+				{"title":"s2g16","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g16.f4v", "length":"1895000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,51,29) },
+				{"title":"s2g18","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g18.f4v", "length":"1942000", "description":"dummyMedia", "startDate":new Date(2011,0,11,14,44,58) },
+				{"title":"s3g10","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g10.f4v", "length":"5344000", "description":"dummyMedia", "startDate":new Date(2011,0,18,13,32,27) },
+				{"title":"s3g11","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g11.f4v", "length":"1761000", "description":"dummyMedia", "startDate":new Date(2011,0,18,13,44,44) },
+				{"title":"s3g12","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g12.f4v", "length":"3537000", "description":"dummyMedia", "startDate":new Date(2011,0,18,13,45,44) },
+				{"title":"s3g13","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g13.f4v", "length":"5214000", "description":"dummyMedia", "startDate":new Date(2011,0,18,13,45,52) },
+				{"title":"s1g11m1","url":"http://localhost/LDT/ttl/s1/g11/groupe11.f4v", "length":"2794000", "description":"s1g11m1" },
+				{"title":"s1g12m1","url":"http://localhost/LDT/ttl/groupe12.flv", "length":"3246000", "description":"s1g12m1" },
+				{"title":"s3g10m1","url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g10.f4v", "length":"0", "description":"s3g10m1" },
+				{"title":"s3g12m1","url":"http://localhost/LDT/ttl/s3/g12/groupe12.f4v", "length":"3537000", "description":"s3g12m1" }];
+			
+			[Bindable]
+			public var arTTL:ArrayCollection = new ArrayCollection([new ObjectProxy({"url":"http://localhost/LDT/Pernille/S05-26-Avril-Aprem.cleaned.ttl","title":"pernille26AvrilMatin","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g10.ttl","title":"s1g10","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g11.filtered.ttl","title":"s1g11","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g12.ttl","title":"s1g12","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g13.ttl","title":"s1g13","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g14.ttl","title":"s1g14","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g15.ttl","title":"s1g15","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g16.ttl","title":"s1g16","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s01g17.filtered.ttl","title":"s1g17","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g10.ttl","title":"s2g10","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g10.transformed.ttl","title":"s2g10t","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g11.ttl","title":"s2g11","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g11.transformed.ttl","title":"s2g11t","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g12.ttl","title":"s2g12","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g14.ttl","title":"s2g14","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g15.ttl","title":"s2g15","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g16.ttl","title":"s2g16","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g18.ttl","title":"s2g18","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s02g18.transformed.ttl","title":"s2g18t","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g10.ttl","title":"s3g10","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g11.ttl","title":"s3g11","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g12.ttl","title":"s3g12","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g13.ttl","title":"s3g13","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g14.ttl","title":"s3g14","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g15.ttl","title":"s3g15","subTraces":new ArrayCollection()}),
+				new ObjectProxy({"url":"http://localhost/LDT/TracesSignees/HulstPremieres/s03g18.ttl","title":"s3g18","subTraces":new ArrayCollection()})]);*/
+			
+			
+			[Bindable]
+			public var arTTL:ArrayCollection = new ArrayCollection(
+				[new ObjectProxy({"url":"http://94.23.209.34:8002/amaury/traceConverter/s02g11.ttl","title":"trace test","traces":null,"loading":false, "loader":null})]
+			);
+				
+			[Bindable]
+			public var arMedia:Array = [];
+			
+			public var theKtbs:Ktbs = new Ktbs("uriKtbs", Resource.RESOURCE_URI_ATTRIBUTION_POLICY_CLIENT_IS_KING);
+			public var theBase:Base;
+			public var theModel:Model;
+			
+			protected function addNewTTL(event:Event):void
+			{
+				arTTL.addItem(new ObjectProxy({"url":"http://","title":"new TTL","traces":null,"loading":false, "loader":null}));
+			} 
+			
+			protected function loadTTL(event:Event):void
+			{
+				if(theTraceExplorer.selectedTTL)
+				{
+					var loader:URLLoader=new URLLoader();
+					loader.dataFormat=URLLoaderDataFormat.BINARY;
+					loader.addEventListener(Event.COMPLETE, onCallComplete);
+					loader.load(new URLRequest(theTraceExplorer.selectedTTL.url));
+					theTraceExplorer.selectedTTL.loading = true;
+					theTraceExplorer.selectedTTL.loader = loader;
+					
+					
+					
+				}
+				
+			}
+			
+			private function onCallComplete(event:Event):void 
+			{
+				//we init the trace object
+				var loader:URLLoader=event.target as URLLoader;
+				var trace_ttl:String = loader.data;
+				var loadedTTL:ObjectProxy;
+				
+				for each(var ttl:ObjectProxy in this.arTTL)
+				{
+					if(ttl.loader == event.target)
+						loadedTTL = ttl;
+				}
+				
+				loadedTTL.traces =  RDFconverter.updateTraceBaseFromTurtle(trace_ttl, theBase);				
+				loadedTTL.loading = false;
+
+				//we create a new subtrace that will contain LDTSession Obsel, this obsel correspond to the different trace we have in the TTL
+				/*var globalBegin:Number = subTraces[0]["begin"];
+				var globalEnd:Number = subTraces[0]["end"];
+				var sessionSubTraceUri:String = encodeURI("Sessions");
+				for each(var subTrace:Object in subTraces)
+				{
+					var subTraceUri:String = (subTrace["uri"] as String);
+					var theObsel:Obsel = new Obsel("sessionLDT",0,"",{"traceUid":subTraceUri.substr(1,subTraceUri.length-2)}, subTrace["begin"], subTrace["end"]);
+					theObsel.traceUriFromRdf = sessionSubTraceUri;
+					
+					theTrace.addObsel(theObsel);
+				}
+				
+				subTraces.addItem({"uri":sessionSubTraceUri, "activated":true, "begin":globalBegin, "end":globalEnd});*/
+
+				//UI Update
+				theTraceExplorer.updateAfterTTLLoading();
+			}
+
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				theBase = this.theKtbs.createBase();
+	
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Accordion right="10" left="10" top="10" bottom="10">
+	<mx:Canvas width="100%" height="100%" label="Trace Explorer">
+		<TraceUI:TraceExplorer id="theTraceExplorer" arTTL="{this.arTTL}" arMedia="{this.arMedia}"  addTTLEvent="addNewTTL(event)" loadTTLEvent="loadTTL(event)"  x="0" y="0" />
+	</mx:Canvas>
+</mx:Accordion>
+</mx:Application>

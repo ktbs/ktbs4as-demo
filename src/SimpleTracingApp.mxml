@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Application xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" minWidth="955" minHeight="600" initialize="initializeHandler(event)" creationComplete="creationCompleteHandler(event)">
+	<mx:Script>
+		<![CDATA[
+			import com.demonsters.debugger.MonsterDebugger;
+			import com.ithaca.traces.*;
+			import com.ithaca.traces.services.DTSTraceService;
+			import com.ithaca.traces.services.DescribeService;
+			
+			import mx.binding.utils.BindingUtils;
+			import mx.events.FlexEvent;
+			
+			public var theKtbs:Ktbs;
+			public var theBase:Base;
+			public var theModel:Model;
+			public var theTrace:StoredTrace;
+			public var lastUserActionThatChangeTheBox:Obsel;
+			
+			public var dtsUrl:String = "http://localhost/LDT/yo-traces.php";
+			
+			protected function initializeHandler(event:FlexEvent):void
+			{
+				// Start the MonsterDebugger
+				MonsterDebugger.initialize(this);
+				MonsterDebugger.trace(this, "Hello World!");
+				
+				//Creation of a trace
+				theKtbs = new Ktbs("uriKtbs", Resource.RESOURCE_URI_ATTRIBUTION_POLICY_CLIENT_IS_KING);
+				//theKtbs.arServices.addItem(new DTSTraceService(dtsUrl));
+				var describeService:DescribeService = new DescribeService("localhost",32145); 
+				describeService.console = this.console;
+				theKtbs.arServices.addItem(describeService);
+				theBase = this.theKtbs.createBase();	
+				theModel = this.theBase.createModel();
+				theTrace = this.theBase.createStoredTrace(theModel, "sujet1");
+				
+				
+				//Creation of the model
+				var dummyTypeTarget:ObselType = theModel.createObselType("canBeTheTargetOfAnObselCauseRelation");
+				var dummyTypeSource:ObselType = theModel.createObselType("canBeTheSourceOfAnObselCauseRelation");
+				
+				theModel.createObselType("userClickChangeBoxButton",[dummyTypeSource]);
+				theModel.createObselType("copyText",[dummyTypeSource]);
+				theModel.createObselType("checkBoxChange",[dummyTypeTarget]);
+				theModel.createObselType("userClickCheckBox",[dummyTypeSource]);
+				theModel.createRelationType("obselCause",dummyTypeSource,dummyTypeTarget);
+				theModel.createAttributeType("newCheckBoxValue", (theModel.get("checkBoxChange") as ObselType));
+
+				
+			}
+			
+			protected function changeCheckBoxButtonClickHandler(event:MouseEvent):void
+			{
+				this.theCheckBox.selected = !this.theCheckBox.selected;
+				
+				lastUserActionThatChangeTheBox = theTrace.createObsel(theModel.get("userClickChangeBoxButton") as ObselType);
+			}
+			
+			protected function theDummyButton_clickHandler(event:MouseEvent):void
+			{
+				lastUserActionThatChangeTheBox = theTrace.createObsel(theModel.get("copyText") as ObselType);
+			}
+			
+			protected function theCheckBox_changeHandler(event:Event):void
+			{
+				lastUserActionThatChangeTheBox = theTrace.createObsel(theModel.get("userClickCheckBox") as ObselType);
+			}
+			
+			protected function onCheckBoxChange(value:Boolean):void
+			{
+				var relations:Array = [];
+				
+				if(lastUserActionThatChangeTheBox)
+					relations.push(new Relation((theModel.get("obselCause") as RelationType),null,lastUserActionThatChangeTheBox));
+				
+				theTrace.createObsel(theModel.get("checkBoxChange") as ObselType,NaN,NaN,null,null,
+					[new Attribute(theModel.get("newCheckBoxValue") as AttributeType, theCheckBox.selected)],
+					relations);
+				
+				lastUserActionThatChangeTheBox = null;
+			}
+			
+			protected function creationCompleteHandler(event:FlexEvent):void
+			{
+				
+				//Binding
+				BindingUtils.bindSetter(onCheckBoxChange,theCheckBox,"selected");
+				
+			}
+			
+		]]>
+	</mx:Script>
+	<mx:Button id="theCheckBoxButton" x="31" y="62" label="ChangeCheckBox" click="changeCheckBoxButtonClickHandler(event)"/>
+	<mx:CheckBox id="theCheckBox" x="162" y="62" label="CheckBox" mouseUp="theCheckBox_changeHandler(event)"/>
+	<mx:Button id="theDummyButton" x="78" y="111" label="theDummyButton" click="theDummyButton_clickHandler(event)"/>
+	<mx:TextArea id="console" left="10" right="10" top="166" bottom="10"/>
+</mx:Application>
